@@ -1,10 +1,12 @@
 
 function(input, output, session) {
+  
+  # update list of available Congressional Districts if applicable
   observe({
-    cd_list = unique(state_cd_master[state_cd_master$State==input$Cal_Map_Region_Lvl2,'CD_ID'])
+    cal_map_cd_list = unique(state_cd_master[state_cd_master$State==input$Cal_Map_Region_Lvl2,'CD_ID'])
     updateSelectizeInput(
       session, "Cal_Map_Region_Lvl3",
-      choices = cd_list)
+      choices = cal_map_cd_list)
   })
   output$cal_map_header = renderUI({
     if (input$cal_map_stat=='1') {

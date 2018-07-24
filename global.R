@@ -4,7 +4,7 @@ library(tidyverse)
 library(openair)
 
 gv_data = data.frame(fread('./data/gv_data_final.txt'))
-gv_data$Date = as.POSIXct(gv_data$Date, format='%Y-%m-%d')
+gv_data$Date = as.POSIXct(gv_data$Date, format='%Y-%m-%d',tz='UTC')
 cd_map_2014 = data.frame(fread('./data/cd_map_2014.txt'))
 cd_map_2015 = data.frame(fread('./data/cd_map_2015.txt'))
 cd_map_2016 = data.frame(fread('./data/cd_map_2016.txt'))
@@ -27,3 +27,5 @@ gv_year_state = gv_data %>%
             tot_participants=sum(n_participants),
             tot_victims=sum(n_victims),
             tot_suspects=sum(n_suspects))
+
+
