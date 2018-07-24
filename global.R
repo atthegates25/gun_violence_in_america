@@ -1,6 +1,7 @@
 library(shiny)
 library(data.table)
 library(tidyverse)
+library(openair)
 
 gv_data = data.frame(fread('./data/gv_data_final.txt'))
 gv_data$Date = as.POSIXct(gv_data$Date, format='%Y-%m-%d')
@@ -16,3 +17,13 @@ map_colors = c('blue','red','green')
 names(map_colors) = c('D','R','UR')
 cd_map_color_scale = scale_fill_manual(name = "Party",values = map_colors)
 
+gv_cal_data = gv_data %>% group_by(., date=Date) %>% summarise(., tot_killed=sum(n_killed), n_incidents=n())
+
+gv_year_state = gv_data %>% 
+  group_by(., Year, State) %>% 
+  summarise(., tot_shootings=n(), 
+            tot_killed=sum(n_killed), 
+            tot_injured=sum(n_injured),
+            tot_participants=sum(n_participants),
+            tot_victims=sum(n_victims),
+            tot_suspects=sum(n_suspects))
