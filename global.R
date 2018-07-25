@@ -2,6 +2,7 @@ library(shiny)
 library(data.table)
 library(tidyverse)
 library(openair)
+library(stats)
 
 gv_data = data.frame(fread('./data/gv_data_final.txt'))
 gv_data$Date = as.POSIXct(gv_data$Date, format='%Y-%m-%d',tz='UTC')
