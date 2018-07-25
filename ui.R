@@ -4,9 +4,6 @@ fluidPage(
   navbarPage(
     'Gun Violence in America: 2014-2017',
     tabPanel(
-      'Summary Statistics'
-    ),
-    tabPanel(
       'Calendar Plot',
       sidebarLayout(
         sidebarPanel(
@@ -33,6 +30,8 @@ fluidPage(
               condition = 'input.Cal_Plot_Region_Lvl1 == 3',
               selectInput('Cal_Plot_Region_Lvl3', label=h4('Congressional District'), choices=NULL))
           ),
+          
+          # allow user to remove outliers
           checkboxInput("cal_plot_rm_outl", label = "Remove Outliers", value = FALSE)
         ),
         mainPanel(
@@ -54,18 +53,17 @@ fluidPage(
         sidebarPanel(
           width=2,
           
-          # allow user to choose metric to display
-          radioButtons(
-            "cd_map_stat", label = h3("Statistic"),
-            choices = list("Deaths" = 1, "Incidents" = 2), selected = 1),           
-          
           # allow user to select the year for which to display the data
           sliderInput("cd_map_year", label = h3("Year"), min = 2014,
-                      max = 2017, step = 1, value = 2014, ticks = F, sep='')
+                      max = 2017, step = 1, value = 2014, ticks = F, sep='',
+                      animate = animationOptions(interval = 2000, loop = FALSE, playButton = NULL,
+                                                 pauseButton = NULL))
         ),
         mainPanel(
           titlePanel(h1(uiOutput('cd_map_header'), align='center')),
-          plotOutput("cal_2015_map")
+          fluidRow(
+            column(12, plotOutput("cd_map", height='600px'))
+          )
         )
       )
     )

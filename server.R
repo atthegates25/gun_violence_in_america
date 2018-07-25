@@ -2,7 +2,7 @@
 function(input, output, session) {
 
   ########################################################################################################################  
-  ######## CALENDAR PLOT START
+  ######## CALENDAR PLOT
   ########################################################################################################################  
   
   # update list of available Congressional Districts for calendar plot if applicable
@@ -50,7 +50,7 @@ function(input, output, session) {
     }
 
     if (input$cal_plot_rm_outl) {
-      pctile_level = .99
+      pctile_level = .999
     } else {
       pctile_level = 1
     }
@@ -97,37 +97,52 @@ function(input, output, session) {
   )
   
   ########################################################################################################################  
-  ######## CALENDAR PLOT END
+  ######## CONGRESSIONAL DISTRICT MAP
   ########################################################################################################################  
 
-  #_______________________________________________________________________________________________________________________
-  #_______________________________________________________________________________________________________________________
-  
-  ########################################################################################################################  
-  ######## CONGRESSIONAL DISTRICT MAP START
-  ########################################################################################################################  
-  
-  
+  # update CD Map  section title as needed
+  output$cd_map_header = renderUI({
+    paste('Number of Deaths per 1m Residents in ',as.character(input$cd_map_year),sep='')
+  })
+
+  # filter gv data based on user input
   gv_summary = reactive({
-    gv_data %>% filter(., Year==input$CD_Map_Year_CheckGroup) %>% group_by(., State_ID, CD_ID, Party) %>% summarise(., tot_killed=sum(n_killed_per_100k))
+    gv_data %>% 
+      filter(., Year==input$cd_map_year) %>% 
+      group_by(., State_ID, CD_ID, Party) %>% 
+      summarise(., tot_kill_per_1m=(sum(n_killed)/mean(Pop))*1000000)
   })
 
-  map_data_app = reactive({
-    merge(map_data(), gv_summary(), by=c('State_ID', 'CD_ID'), all.x=T) %>% arrange(., Party, State_ID, CD_ID, Order)
-  })
-
+  # choose map data based on year selected
   cd_map_data = reactive({
-    switch(input$cd_map_year,
-           '2014'=cd_map_2014, '2015'=cd_map_2015, '2016'=cd_map_2016,'2017'=cd_map_2017)
+    if (input$cd_map_year==2014) {
+      cd_map_2014
+    } else if (input$cd_map_year==2015) {
+      cd_map_2015
+    } else if (input$cd_map_year==2016) {
+      cd_map_2016
+    } else if (input$cd_map_year==2017) {
+      cd_map_2017
+    }
   })
   
+  # merge gv and map data
+  cd_map_data_app = reactive({
+    merge(cd_map_data(), gv_summary(), by=c('State_ID', 'CD_ID'), all.x=T) %>% arrange(., Party, State_ID, CD_ID, Order)
+  })
+
+  # create map
   output$cd_map = renderPlot(
 
-    #map_data_app$Party = as.factor(map_data_app$Party),
-    ggplot(map_data_app(), aes(x=Long,y=Lat)) + 
-      geom_polygon(aes(group=Group,fill=Party, alpha=tot_killed)) + 
+    ggplot(cd_map_data_app(), aes(x=Long,y=Lat)) + 
+      geom_polygon(aes(group=Group,fill=Party, alpha=tot_kill_per_1m)) + 
       coord_map() +
-      cd_map_color_scale + 
-      theme_bw()
+      color_scale + 
+      theme(line=element_blank(),
+            axis.line = element_blank(),
+            axis.text = element_blank(), 
+            axis.title = element_blank(),
+            panel.background = element_rect(fill='white')) +
+      scale_alpha(guide='none')
   )
 }
