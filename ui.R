@@ -33,11 +33,7 @@ fluidPage(
               condition = 'input.Cal_Plot_Region_Lvl1 == 3',
               selectInput('Cal_Plot_Region_Lvl3', label=h4('Congressional District'), choices=NULL))
           ),
-          checkboxInput("cal_plot_rm_outliers", label = "Remove Outliers", value = FALSE),
-          conditionalPanel(
-            condition = 'input.cal_plot_rm_outliers==true',
-            sliderInput("cal_plot_outl_cap", label = "Percentile Cap", min = 75 ,max = 100, value = 100, ticks = F, sep='')
-          )
+          checkboxInput("cal_plot_rm_outl", label = "Remove Outliers", value = FALSE)
         ),
         mainPanel(
           titlePanel(h1(uiOutput('cal_plot_header'), align='center')),

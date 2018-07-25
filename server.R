@@ -49,29 +49,27 @@ function(input, output, session) {
       }
     }
 
-    if (input$cal_plot_rm_outliers) {
-      pctile_value = input$cal_plot_outl_cap/100
+    if (input$cal_plot_rm_outl) {
+      pctile_level = .99
     } else {
-      pctile_value = 1
+      pctile_level = 1
     }
-    
+
     if (cal_plot_column() == 'tot_kill_per_1m') {
       gv_data_disp %>% 
         group_by(., date=Date, State_ID, CD_ID) %>% 
         summarise(., tot_killed=sum(n_killed), n_incidents=n(), Population=mean(Pop)) %>% 
         group_by(., date) %>% 
         summarise(., tot_kill_per_1m=(sum(tot_killed)/sum(Population))*1000000,num_incidents=sum(n_incidents)) %>%
-        filter(., tot_kill_per_1m <= quantile(tot_kill_per_1m, pctile_value))
+        filter(., tot_kill_per_1m <= quantile(tot_kill_per_1m, pctile_level))
     } else {
       gv_data_disp %>% 
         group_by(., date=Date, State_ID, CD_ID) %>% 
         summarise(., tot_killed=sum(n_killed), n_incidents=n(), Population=mean(Pop)) %>% 
         group_by(., date) %>% 
         summarise(., tot_kill_per_1m=(sum(tot_killed)/sum(Population))*1000000,num_incidents=sum(n_incidents)) %>%
-        filter(., num_incidents <= quantile(num_incidents, pctile_value))
+        filter(., num_incidents <= quantile(num_incidents, pctile_level))
     }
-    
-    
   })
 
   # update maximum for shading scale of calendar map based on user inputs
